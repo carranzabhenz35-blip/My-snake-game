@@ -3,31 +3,46 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Snake Game - BhenzFlix</title>
+
 <style>
 body{
     text-align:center;
     background:black;
     color:white;
-    font-family:Arial;
+    font-family:Arial, sans-serif;
 }
+
 canvas{
     background:#111;
     border:3px solid white;
     margin-top:10px;
+    border-radius:10px;
 }
+
 button{
-    padding:10px;
+    padding:10px 15px;
     margin:5px;
     font-size:18px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+#startBtn{
+    background:limegreen;
+    color:white;
 }
 </style>
 </head>
+
 <body>
 
 <h2>🐍 Snake Game</h2>
 <p>Score: <span id="score">0</span></p>
-<button onclick="startGame()">Start</button>
+
+<button id="startBtn" onclick="startGame()">Start Game</button>
 <br>
+
 <canvas id="game" width="300" height="300"></canvas>
 
 <br>
@@ -81,16 +96,17 @@ document.addEventListener("keydown",e=>{
 });
 
 function draw(){
+
     ctx.fillStyle="#111";
     ctx.fillRect(0,0,300,300);
 
-    // Snake
+    // Draw Snake
     for(let i=0;i<snake.length;i++){
         ctx.fillStyle=i===0?"lime":"green";
         ctx.fillRect(snake[i].x,snake[i].y,box,box);
     }
 
-    // Food
+    // Draw Food
     ctx.fillStyle="red";
     ctx.fillRect(food.x,food.y,box,box);
 
@@ -120,10 +136,10 @@ function draw(){
 
     snake.unshift(newHead);
 
-    // 🔥 SIGNATURE
+    // 🔥 SIGNATURE WATERMARK
     ctx.fillStyle="white";
-    ctx.font="12px Arial";
-    ctx.fillText("BhenzFlix", 210, 290);
+    ctx.font="bold 14px Arial";
+    ctx.fillText("BhenzFlix", 190, 285);
 }
 
 function collision(head,array){
