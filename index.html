@@ -8,7 +8,7 @@
 body{
     margin:0;
     text-align:center;
-    background:linear-gradient(to bottom,#000000,#1a1a1a);
+    background:linear-gradient(to bottom,#000000,#111);
     color:white;
     font-family:Arial, sans-serif;
 }
@@ -20,7 +20,7 @@ h2{
 canvas{
     background:#111;
     border:4px solid #00ff88;
-    border-radius:15px;
+    border-radius:20px;
     margin-top:10px;
     width:90vw;
     max-width:500px;
@@ -29,15 +29,15 @@ canvas{
 }
 
 button{
-    width:70px;
-    height:70px;
-    margin:8px;
-    font-size:24px;
+    width:75px;
+    height:75px;
+    margin:10px;
+    font-size:26px;
     border:none;
     border-radius:50%;
-    background:#222;
+    background:#1a1a1a;
     color:#00ff88;
-    box-shadow:0 0 10px #00ff88;
+    box-shadow:0 0 15px #00ff88;
 }
 
 button:active{
@@ -47,8 +47,8 @@ button:active{
 
 #startBtn{
     border-radius:12px;
-    width:180px;
-    height:50px;
+    width:200px;
+    height:55px;
     font-size:18px;
     background:#00ff88;
     color:black;
@@ -78,7 +78,8 @@ const canvas=document.getElementById("game");
 const ctx=canvas.getContext("2d");
 
 const box=20;
-const size=20;
+const grid=20;
+const canvasSize=400;
 
 let snake,food,direction,score,game;
 
@@ -89,13 +90,13 @@ function startGame(){
     document.getElementById("score").textContent=score;
     food=randomFood();
     clearInterval(game);
-    game=setInterval(draw,120);
+    game=setInterval(draw,110);
 }
 
 function randomFood(){
     return{
-        x:Math.floor(Math.random()*size)*box,
-        y:Math.floor(Math.random()*size)*box
+        x:Math.floor(Math.random()*grid)*box,
+        y:Math.floor(Math.random()*grid)*box
     };
 }
 
@@ -106,24 +107,37 @@ function setDir(dir){
     if(dir==="DOWN"&&direction!=="UP")direction="DOWN";
 }
 
+document.addEventListener("keydown",e=>{
+    if(e.key==="ArrowLeft") setDir("LEFT");
+    if(e.key==="ArrowRight") setDir("RIGHT");
+    if(e.key==="ArrowUp") setDir("UP");
+    if(e.key==="ArrowDown") setDir("DOWN");
+});
+
 function draw(){
+
     ctx.fillStyle="#111";
-    ctx.fillRect(0,0,400,400);
+    ctx.fillRect(0,0,canvasSize,canvasSize);
 
-    // Snake glow
+    // Glow effect
     ctx.shadowColor="#00ff88";
-    ctx.shadowBlur=10;
+    ctx.shadowBlur=18;
 
+    // Draw snake rounded
     for(let i=0;i<snake.length;i++){
-        ctx.fillStyle=i===0?"#00ff88":"#009944";
-        ctx.fillRect(snake[i].x,snake[i].y,box,box);
+        ctx.fillStyle=i===0?"#00ffcc":"#00aa66";
+        ctx.beginPath();
+        ctx.roundRect(snake[i].x, snake[i].y, box, box, 8);
+        ctx.fill();
     }
 
     ctx.shadowBlur=0;
 
-    // Food
+    // Draw food (circle)
     ctx.fillStyle="red";
-    ctx.fillRect(food.x,food.y,box,box);
+    ctx.beginPath();
+    ctx.arc(food.x+box/2, food.y+box/2, box/2, 0, Math.PI*2);
+    ctx.fill();
 
     let headX=snake[0].x;
     let headY=snake[0].y;
@@ -133,7 +147,13 @@ function draw(){
     if(direction==="UP")headY-=box;
     if(direction==="DOWN")headY+=box;
 
-    if(headX===food.x&&headY===food.y){
+    // WRAP WALLS
+    if(headX < 0) headX = canvasSize - box;
+    if(headX >= canvasSize) headX = 0;
+    if(headY < 0) headY = canvasSize - box;
+    if(headY >= canvasSize) headY = 0;
+
+    if(headX===food.x && headY===food.y){
         score++;
         document.getElementById("score").textContent=score;
         food=randomFood();
@@ -143,7 +163,8 @@ function draw(){
 
     let newHead={x:headX,y:headY};
 
-    if(headX<0||headY<0||headX>=400||headY>=400||collision(newHead,snake)){
+    // Game over only if hit body
+    if(collision(newHead,snake)){
         alert("Game Over! Score: "+score);
         clearInterval(game);
         return;
@@ -151,6 +172,7 @@ function draw(){
 
     snake.unshift(newHead);
 
+    // Signature
     ctx.fillStyle="white";
     ctx.font="bold 16px Arial";
     ctx.fillText("BhenzFlix", 260, 385);
@@ -158,7 +180,7 @@ function draw(){
 
 function collision(head,array){
     for(let i=0;i<array.length;i++){
-        if(head.x===array[i].x&&head.y===array[i].y){
+        if(head.x===array[i].x && head.y===array[i].y){
             return true;
         }
     }
