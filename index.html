@@ -13,7 +13,6 @@ body{
     color:white;
 }
 
-/* HEADER */
 .banner{
     padding:20px 10px 5px 10px;
 }
@@ -31,15 +30,13 @@ h1{
     text-shadow:0 0 15px #00ff99;
 }
 
-/* SCORE */
 .score{
     font-size:18px;
     margin-bottom:10px;
 }
 
-/* GAME AREA */
 canvas{
-    background:rgba(0,0,0,0.85);
+    background:rgba(0,0,0,0.9);
     border:4px solid #00ff99;
     border-radius:20px;
     box-shadow:0 0 25px #00ff99;
@@ -49,7 +46,6 @@ canvas{
     max-height:400px;
 }
 
-/* BUTTON */
 button{
     margin-top:15px;
     padding:12px 25px;
@@ -61,7 +57,6 @@ button{
     box-shadow:0 0 15px #00ff99;
 }
 
-/* CONTROLS */
 .controls{
     margin-top:20px;
 }
@@ -138,7 +133,7 @@ document.addEventListener("keydown",e=>{
 function draw(){
     ctx.clearRect(0,0,400,400);
 
-    // food glow
+    // DRAW FOOD
     ctx.fillStyle="red";
     ctx.shadowColor="red";
     ctx.shadowBlur=15;
@@ -150,18 +145,18 @@ function draw(){
     let headX=snake[0].x;
     let headY=snake[0].y;
 
-    if(dir==="UP")headY-=box;
-    if(dir==="DOWN")headY+=box;
-    if(dir==="LEFT")headX-=box;
-    if(dir==="RIGHT")headX+=box;
+    if(dir==="UP") headY-=box;
+    if(dir==="DOWN") headY+=box;
+    if(dir==="LEFT") headX-=box;
+    if(dir==="RIGHT") headX+=box;
 
-    // wall pass
-    if(headX<0)headX=380;
-    if(headX>=400)headX=0;
-    if(headY<0)headY=380;
-    if(headY>=400)headY=0;
+    // WALL PASS MODE
+    if(headX<0) headX=380;
+    if(headX>=400) headX=0;
+    if(headY<0) headY=380;
+    if(headY>=400) headY=0;
 
-    // body collision
+    // BODY COLLISION
     for(let i=0;i<snake.length;i++){
         if(headX===snake[i].x && headY===snake[i].y){
             clearInterval(game);
@@ -181,15 +176,44 @@ function draw(){
 
     snake.unshift(newHead);
 
-    // snake glow
-    for(let i=0;i<snake.length;i++){
-        ctx.fillStyle=i==0?"#00ff99":"#00cc88";
-        ctx.shadowColor="#00ff99";
-        ctx.shadowBlur=20;
-        ctx.beginPath();
-        ctx.arc(snake[i].x+10,snake[i].y+10,8,0,Math.PI*2);
-        ctx.fill();
-        ctx.shadowBlur=0;
+    // DRAW SNAKE
+    for(let i=snake.length-1;i>=0;i--){
+        if(i===0){
+            // HEAD
+            ctx.fillStyle="#00ff66";
+            ctx.shadowColor="#00ff66";
+            ctx.shadowBlur=15;
+            ctx.beginPath();
+            ctx.ellipse(snake[i].x+10,snake[i].y+10,12,10,0,0,Math.PI*2);
+            ctx.fill();
+            ctx.shadowBlur=0;
+
+            // EYES
+            ctx.fillStyle="white";
+            ctx.beginPath();
+            ctx.arc(snake[i].x+6,snake[i].y+7,2,0,Math.PI*2);
+            ctx.arc(snake[i].x+14,snake[i].y+7,2,0,Math.PI*2);
+            ctx.fill();
+
+            ctx.fillStyle="black";
+            ctx.beginPath();
+            ctx.arc(snake[i].x+6,snake[i].y+7,1,0,Math.PI*2);
+            ctx.arc(snake[i].x+14,snake[i].y+7,1,0,Math.PI*2);
+            ctx.fill();
+
+            // TONGUE
+            ctx.strokeStyle="red";
+            ctx.lineWidth=2;
+            ctx.beginPath();
+            ctx.moveTo(snake[i].x+10,snake[i].y+18);
+            ctx.lineTo(snake[i].x+10,snake[i].y+24);
+            ctx.stroke();
+        }else{
+            ctx.fillStyle="#00994d";
+            ctx.beginPath();
+            ctx.ellipse(snake[i].x+10,snake[i].y+10,10,8,0,0,Math.PI*2);
+            ctx.fill();
+        }
     }
 }
 </script>
