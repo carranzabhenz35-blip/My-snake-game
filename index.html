@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BHENZ REAL SNAKE - RED MODE</title>
+<title>BHENZ DEMON SNAKE</title>
 
 <style>
 body{
@@ -32,7 +32,7 @@ max-height:420px;
 margin-top:10px;
 }
 
-/* RED CONTROLS */
+/* GREEN CONTROLS */
 .controls{
 margin-top:30px;
 display:flex;
@@ -53,20 +53,20 @@ border-radius:50%;
 border:none;
 font-size:30px;
 font-weight:bold;
-color:white;
-background:linear-gradient(145deg,#ff1a1a,#990000);
+color:black;
+background:linear-gradient(145deg,#00ff88,#00cc66);
 box-shadow:
-0 0 20px #ff0000,
-0 0 40px #ff0000,
-inset 0 0 10px rgba(255,255,255,0.3);
+0 0 20px #00ff88,
+0 0 40px #00ff88,
+inset 0 0 10px rgba(255,255,255,0.4);
 transition:all 0.1s ease;
 }
 
 .controls button:active{
 transform:scale(0.88);
 box-shadow:
-0 0 10px #ff0000,
-inset 0 0 20px rgba(0,0,0,0.7);
+0 0 10px #00ff88,
+inset 0 0 20px rgba(0,0,0,0.6);
 }
 </style>
 </head>
@@ -155,7 +155,7 @@ if(headY>=420) headY=0;
 for(let i=1;i<snake.length;i++){
 if(headX===snake[i].x && headY===snake[i].y){
 clearInterval(game);
-alert("💀 DEMON SNAKE DIED!");
+alert("💀 GAME OVER");
 }
 }
 
@@ -194,7 +194,7 @@ ctx.arc(snake[i].x+10,snake[i].y+10,10,0,Math.PI*2);
 ctx.fill();
 ctx.shadowBlur=0;
 
-/* HEAD DETAILS */
+/* HEAD */
 if(i===0){
 
 ctx.fillStyle="white";
