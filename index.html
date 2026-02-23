@@ -1,216 +1,139 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Snake Game Ultimate</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            text-align: center;
-            font-family: Arial, sans-serif;
-            background: black;
-            color: white;
-            margin: 0;
-        }
-
-        canvas {
-            margin-top: 10px;
-            border: 4px solid white;
-            border-radius: 10px;
-        }
-
-        button {
-            padding: 10px 15px;
-            margin: 5px;
-            font-size: 16px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-
-        #startBtn { background: limegreen; color: white; }
-        #restartBtn { background: crimson; color: white; display: none; }
-
-        #overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            font-size: 28px;
-        }
-
-        .controls button {
-            width: 60px;
-            height: 60px;
-            font-size: 20px;
-        }
-    </style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Snake Game - BhenzFlix</title>
+<style>
+body{
+    text-align:center;
+    background:black;
+    color:white;
+    font-family:Arial;
+}
+canvas{
+    background:#111;
+    border:3px solid white;
+    margin-top:10px;
+}
+button{
+    padding:10px;
+    margin:5px;
+    font-size:18px;
+}
+</style>
 </head>
 <body>
 
 <h2>🐍 Snake Game</h2>
 <p>Score: <span id="score">0</span></p>
-<p>High Score: <span id="highScore">0</span></p>
-<p>Level: <span id="level">1</span></p>
-
-<button id="startBtn">Start Game</button>
-<button id="restartBtn">Restart</button>
+<button onclick="startGame()">Start</button>
+<br>
+<canvas id="game" width="300" height="300"></canvas>
 
 <br>
-<canvas id="game" width="400" height="400"></canvas>
-
-<div class="controls">
-    <br>
-    <button onclick="setDir('UP')">⬆️</button><br>
-    <button onclick="setDir('LEFT')">⬅️</button>
-    <button onclick="setDir('DOWN')">⬇️</button>
-    <button onclick="setDir('RIGHT')">➡️</button>
-</div>
-
-<div id="overlay">
-    💀 GAME OVER
-    <div id="finalScore"></div>
-</div>
+<button onclick="setDir('UP')">⬆️</button><br>
+<button onclick="setDir('LEFT')">⬅️</button>
+<button onclick="setDir('DOWN')">⬇️</button>
+<button onclick="setDir('RIGHT')">➡️</button>
 
 <script>
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
-const box = 20;
-const canvasSize = 20;
+const box = 15;
+const size = 20;
 
-let snake, direction, food, score, level, speed, game;
-let highScore = localStorage.getItem("snakeHighScore") || 0;
-document.getElementById("highScore").textContent = highScore;
+let snake;
+let food;
+let direction;
+let score;
+let game;
 
-let bg = new Image();
-bg.src = "background.png";
-
-const eatSound = new Audio("eat.mp3");
-const gameOverSound = new Audio("gameover.mp3");
-
-function initGame() {
-    snake = [{ x: 10 * box, y: 10 * box }];
+function startGame(){
+    snake = [{x:10*box,y:10*box}];
     direction = "RIGHT";
     score = 0;
-    level = 1;
-    speed = 150;
-
     document.getElementById("score").textContent = score;
-    document.getElementById("level").textContent = level;
-
     food = randomFood();
+    clearInterval(game);
+    game = setInterval(draw,150);
 }
 
-function randomFood() {
-    return {
-        x: Math.floor(Math.random() * canvasSize) * box,
-        y: Math.floor(Math.random() * canvasSize) * box
+function randomFood(){
+    return{
+        x:Math.floor(Math.random()*size)*box,
+        y:Math.floor(Math.random()*size)*box
     };
 }
 
-document.addEventListener("keydown", e => {
-    if (e.key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
-    if (e.key === "ArrowUp" && direction !== "DOWN") direction = "UP";
-    if (e.key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT";
-    if (e.key === "ArrowDown" && direction !== "UP") direction = "DOWN";
-});
-
 function setDir(dir){
-    if (dir === "LEFT" && direction !== "RIGHT") direction = "LEFT";
-    if (dir === "UP" && direction !== "DOWN") direction = "UP";
-    if (dir === "RIGHT" && direction !== "LEFT") direction = "RIGHT";
-    if (dir === "DOWN" && direction !== "UP") direction = "DOWN";
+    if(dir==="LEFT" && direction!=="RIGHT") direction="LEFT";
+    if(dir==="RIGHT" && direction!=="LEFT") direction="RIGHT";
+    if(dir==="UP" && direction!=="DOWN") direction="UP";
+    if(dir==="DOWN" && direction!=="UP") direction="DOWN";
 }
 
-function draw() {
+document.addEventListener("keydown",e=>{
+    if(e.key==="ArrowLeft") setDir("LEFT");
+    if(e.key==="ArrowRight") setDir("RIGHT");
+    if(e.key==="ArrowUp") setDir("UP");
+    if(e.key==="ArrowDown") setDir("DOWN");
+});
 
-    ctx.drawImage(bg, 0, 0, 400, 400);
+function draw(){
+    ctx.fillStyle="#111";
+    ctx.fillRect(0,0,300,300);
 
-    for (let i = 0; i < snake.length; i++) {
-        ctx.fillStyle = i === 0 ? "#00ffff" : "#0088ff";
-        ctx.fillRect(snake[i].x, snake[i].y, box, box);
+    // Snake
+    for(let i=0;i<snake.length;i++){
+        ctx.fillStyle=i===0?"lime":"green";
+        ctx.fillRect(snake[i].x,snake[i].y,box,box);
     }
 
-    ctx.fillStyle = "yellow";
-    ctx.fillRect(food.x, food.y, box, box);
+    // Food
+    ctx.fillStyle="red";
+    ctx.fillRect(food.x,food.y,box,box);
 
-    let headX = snake[0].x;
-    let headY = snake[0].y;
+    let headX=snake[0].x;
+    let headY=snake[0].y;
 
-    if (direction === "LEFT") headX -= box;
-    if (direction === "UP") headY -= box;
-    if (direction === "RIGHT") headX += box;
-    if (direction === "DOWN") headY += box;
+    if(direction==="LEFT") headX-=box;
+    if(direction==="RIGHT") headX+=box;
+    if(direction==="UP") headY-=box;
+    if(direction==="DOWN") headY+=box;
 
-    if (headX === food.x && headY === food.y) {
+    if(headX===food.x && headY===food.y){
         score++;
-        eatSound.play();
-        document.getElementById("score").textContent = score;
-
-        if (score % 5 === 0) {
-            level++;
-            speed -= 10;
-            document.getElementById("level").textContent = level;
-            clearInterval(game);
-            game = setInterval(draw, speed);
-        }
-
-        food = randomFood();
-    } else {
+        document.getElementById("score").textContent=score;
+        food=randomFood();
+    }else{
         snake.pop();
     }
 
-    let newHead = { x: headX, y: headY };
+    let newHead={x:headX,y:headY};
 
-    if (
-        headX < 0 || headY < 0 ||
-        headX >= 400 || headY >= 400 ||
-        collision(newHead, snake)
-    ) {
+    if(headX<0||headY<0||headX>=300||headY>=300||collision(newHead,snake)){
+        alert("Game Over! Score: "+score);
         clearInterval(game);
-        gameOverSound.play();
-
-        if (score > highScore) {
-            highScore = score;
-            localStorage.setItem("snakeHighScore", highScore);
-            document.getElementById("highScore").textContent = highScore;
-        }
-
-        document.getElementById("overlay").style.display = "flex";
-        document.getElementById("finalScore").textContent = "Final Score: " + score;
-        document.getElementById("restartBtn").style.display = "inline-block";
         return;
     }
 
     snake.unshift(newHead);
+
+    // 🔥 SIGNATURE
+    ctx.fillStyle="white";
+    ctx.font="12px Arial";
+    ctx.fillText("BhenzFlix", 210, 290);
 }
 
-function collision(head, array) {
-    for (let i = 0; i < array.length; i++) {
-        if (head.x === array[i].x && head.y === array[i].y) return true;
+function collision(head,array){
+    for(let i=0;i<array.length;i++){
+        if(head.x===array[i].x && head.y===array[i].y){
+            return true;
+        }
     }
     return false;
 }
-
-document.getElementById("startBtn").onclick = function() {
-    initGame();
-    document.getElementById("overlay").style.display = "none";
-    game = setInterval(draw, speed);
-    this.style.display = "none";
-};
-
-document.getElementById("restartBtn").onclick = function() {
-    initGame();
-    document.getElementById("overlay").style.display = "none";
-    game = setInterval(draw, speed);
-    this.style.display = "none";
-};
 </script>
 
 </body>
