@@ -7,19 +7,21 @@
 <style>
 body{
 margin:0;
-background:black;
-color:white;
-text-align:center;
 font-family:Arial;
+text-align:center;
+background:radial-gradient(circle at center,#001a12,#000);
+color:white;
+overflow:hidden;
 }
 
 h1{
 color:#00ff99;
-text-shadow:0 0 20px #00ff99;
+text-shadow:0 0 25px #00ff99;
+margin-top:15px;
 }
 
 canvas{
-background:#000;
+background:rgba(0,0,0,0.8);
 border:4px solid #00ff99;
 border-radius:20px;
 box-shadow:0 0 40px #00ff99;
@@ -27,21 +29,44 @@ width:90vw;
 max-width:420px;
 height:90vw;
 max-height:420px;
+margin-top:10px;
 }
 
+/* CONTROLS */
 .controls{
-margin-top:20px;
+margin-top:30px;
+display:flex;
+flex-direction:column;
+align-items:center;
+}
+
+.row{
+display:flex;
+justify-content:center;
 }
 
 .controls button{
-width:75px;
-height:75px;
-margin:6px;
+width:85px;
+height:85px;
+margin:8px;
 border-radius:50%;
 border:none;
-font-size:26px;
-background:#00ff99;
-box-shadow:0 0 20px #00ff99;
+font-size:30px;
+font-weight:bold;
+color:#000;
+background:linear-gradient(145deg,#00ff99,#00cc66);
+box-shadow:
+0 0 20px #00ff99,
+0 0 40px #00ff99,
+inset 0 0 10px rgba(255,255,255,0.5);
+transition:all 0.1s ease;
+}
+
+.controls button:active{
+transform:scale(0.88);
+box-shadow:
+0 0 15px #00ff99,
+inset 0 0 20px rgba(0,0,0,0.6);
 }
 </style>
 </head>
@@ -54,11 +79,14 @@ box-shadow:0 0 20px #00ff99;
 <canvas id="game" width="420" height="420"></canvas>
 
 <div class="controls">
-<br>
-<button onclick="setDir('UP')">⬆</button><br>
-<button onclick="setDir('LEFT')">⬅</button>
-<button onclick="setDir('DOWN')">⬇</button>
-<button onclick="setDir('RIGHT')">➡</button>
+<div class="row">
+<button onclick="setDir('UP')">▲</button>
+</div>
+<div class="row">
+<button onclick="setDir('LEFT')">◀</button>
+<button onclick="setDir('DOWN')">▼</button>
+<button onclick="setDir('RIGHT')">▶</button>
+</div>
 </div>
 
 <script>
@@ -67,6 +95,7 @@ const ctx=canvas.getContext("2d");
 
 const box=21;
 let snake,food,dir,score,game;
+let glowPulse=0;
 
 function randomPos(){
 return{
@@ -96,11 +125,17 @@ function draw(){
 
 ctx.clearRect(0,0,420,420);
 
-/* FOOD */
+/* FOOD WITH PULSE */
+glowPulse+=0.1;
+let pulseSize=8+Math.sin(glowPulse)*2;
+
+ctx.shadowColor="red";
+ctx.shadowBlur=20;
 ctx.fillStyle="red";
 ctx.beginPath();
-ctx.arc(food.x+10,food.y+10,8,0,Math.PI*2);
+ctx.arc(food.x+10,food.y+10,pulseSize,0,Math.PI*2);
 ctx.fill();
+ctx.shadowBlur=0;
 
 let headX=snake[0].x;
 let headY=snake[0].y;
@@ -111,16 +146,16 @@ if(dir==="LEFT") headX-=box;
 if(dir==="RIGHT") headX+=box;
 
 /* WALL PASS */
-if(headX<0) headX=399;
+if(headX<0) headX=420-box;
 if(headX>=420) headX=0;
-if(headY<0) headY=399;
+if(headY<0) headY=420-box;
 if(headY>=420) headY=0;
 
 /* SELF COLLISION */
 for(let i=0;i<snake.length;i++){
 if(headX===snake[i].x && headY===snake[i].y){
 clearInterval(game);
-alert("Game Over!");
+alert("💀 GAME OVER");
 }
 }
 
@@ -136,10 +171,10 @@ snake.pop();
 
 snake.unshift(newHead);
 
-/* DRAW REAL SNAKE */
+/* DRAW SNAKE */
 for(let i=snake.length-1;i>=0;i--){
 
-let gradient=ctx.createRadialGradient(
+let grad=ctx.createRadialGradient(
 snake[i].x+10,
 snake[i].y+10,
 2,
@@ -148,13 +183,16 @@ snake[i].y+10,
 10
 );
 
-gradient.addColorStop(0,"#00ff66");
-gradient.addColorStop(1,"#006633");
+grad.addColorStop(0,"#00ff88");
+grad.addColorStop(1,"#004d26");
 
-ctx.fillStyle=gradient;
+ctx.fillStyle=grad;
+ctx.shadowColor="#00ff99";
+ctx.shadowBlur=15;
 ctx.beginPath();
 ctx.arc(snake[i].x+10,snake[i].y+10,10,0,Math.PI*2);
 ctx.fill();
+ctx.shadowBlur=0;
 
 /* HEAD DETAILS */
 if(i===0){
@@ -174,9 +212,10 @@ ctx.fill();
 
 // Tongue
 ctx.strokeStyle="red";
+ctx.lineWidth=2;
 ctx.beginPath();
 ctx.moveTo(snake[i].x+10,snake[i].y+18);
-ctx.lineTo(snake[i].x+10,snake[i].y+24);
+ctx.lineTo(snake[i].x+10,snake[i].y+25);
 ctx.stroke();
 }
 }
