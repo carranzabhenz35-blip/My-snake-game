@@ -2,240 +2,214 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BHENZ SNAKE</title>
+<title>BHENZ SNAKE GOD MODE</title>
 
 <style>
 body{
-    margin:0;
-    font-family:Arial, sans-serif;
-    text-align:center;
-    background:radial-gradient(circle at center,#0f0f0f 0%,#000 90%);
-    color:white;
-}
-
-/* ===== BANNER ===== */
-.banner{
-    padding:25px 10px 10px 10px;
-}
-
-.title-wrap{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:12px;
-}
-
-.logo{
-    width:65px;
-    height:65px;
-    border-radius:50%;
-    object-fit:cover;
-    box-shadow:0 0 20px #00ff99;
+margin:0;
+background:black;
+color:white;
+text-align:center;
+font-family:Arial;
 }
 
 h1{
-    margin:0;
-    font-size:26px;
-    color:#00ff99;
-    text-shadow:0 0 15px #00ff99;
+color:#00ff99;
+text-shadow:0 0 20px #00ff99;
+margin-top:10px;
 }
 
-.crown{
-    filter:drop-shadow(0 0 8px gold);
-}
-
-/* ===== SCORE ===== */
-.score{
-    font-size:18px;
-    margin-bottom:10px;
-}
-
-/* ===== CANVAS ===== */
 canvas{
-    background:rgba(0,0,0,0.9);
-    border:4px solid #00ff99;
-    border-radius:20px;
-    box-shadow:0 0 30px #00ff99;
-    width:90vw;
-    max-width:400px;
-    height:90vw;
-    max-height:400px;
+background:#000;
+border:4px solid #00ff99;
+border-radius:20px;
+box-shadow:0 0 40px #00ff99;
+width:90vw;
+max-width:420px;
+height:90vw;
+max-height:420px;
+margin-top:10px;
 }
 
-/* ===== BUTTON ===== */
-button{
-    margin-top:15px;
-    padding:12px 25px;
-    font-size:18px;
-    background:#00ff99;
-    border:none;
-    border-radius:12px;
-    font-weight:bold;
-    box-shadow:0 0 15px #00ff99;
-}
-
-/* ===== CONTROLS ===== */
 .controls{
-    margin-top:20px;
+margin-top:25px;
 }
 
 .controls button{
-    width:70px;
-    height:70px;
-    border-radius:50%;
-    font-size:22px;
-    margin:5px;
+width:75px;
+height:75px;
+margin:6px;
+border-radius:50%;
+border:none;
+font-size:26px;
+background:#00ff99;
+color:black;
+box-shadow:0 0 20px #00ff99;
+}
+
+#gameOver{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.9);
+display:none;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+}
+.playBtn{
+padding:10px 20px;
+background:#00ff99;
+border:none;
+border-radius:10px;
+margin-top:10px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="banner">
-    <div class="title-wrap">
-        <img src="logo.png" class="logo">
-        <h1>BHENZ SNAKE <span class="crown">👑</span></h1>
-    </div>
-</div>
+<h1>👑 BHENZ SNAKE GOD MODE 👑</h1>
+<p>
+Score: <span id="score">0</span> |
+High: <span id="high">0</span> |
+Level: <span id="level">1</span>
+</p>
 
-<div class="score">
-    Score: <span id="score">0</span>
-</div>
-
-<button onclick="startGame()">Start Game</button>
-<br><br>
-
-<canvas id="game" width="400" height="400"></canvas>
+<canvas id="game" width="420" height="420"></canvas>
 
 <div class="controls">
-    <br>
-    <button onclick="setDir('UP')">↑</button><br>
-    <button onclick="setDir('LEFT')">←</button>
-    <button onclick="setDir('DOWN')">↓</button>
-    <button onclick="setDir('RIGHT')">→</button>
+<br>
+<button onclick="setDir('UP')">⬆</button><br>
+<button onclick="setDir('LEFT')">⬅</button>
+<button onclick="setDir('DOWN')">⬇</button>
+<button onclick="setDir('RIGHT')">➡</button>
+</div>
+
+<div id="gameOver">
+<h2>💀 GAME OVER</h2>
+<p>Final Score: <span id="final"></span></p>
+<button class="playBtn" onclick="startGame()">PLAY AGAIN</button>
 </div>
 
 <script>
 const canvas=document.getElementById("game");
 const ctx=canvas.getContext("2d");
 
-const box=20;
-let snake,food,dir,score,game;
+const box=21;
+let snake,food,dir,score,level,speed,game;
+let obstacles=[];
+let high=localStorage.getItem("bhenzHigh")||0;
+document.getElementById("high").innerText=high;
 
-function startGame(){
-    snake=[{x:200,y:200}];
-    dir="RIGHT";
-    score=0;
-    document.getElementById("score").innerText=score;
-    food=randomFood();
-    clearInterval(game);
-    game=setInterval(draw,120);
+function randomPos(){
+return{
+x:Math.floor(Math.random()*20)*box,
+y:Math.floor(Math.random()*20)*box
+};
 }
 
-function randomFood(){
-    return{
-        x:Math.floor(Math.random()*20)*box,
-        y:Math.floor(Math.random()*20)*box
-    };
+function startGame(){
+snake=[{x:210,y:210}];
+dir="RIGHT";
+score=0;
+level=1;
+speed=120;
+obstacles=[];
+food=randomPos();
+document.getElementById("score").innerText=0;
+document.getElementById("level").innerText=1;
+document.getElementById("gameOver").style.display="none";
+clearInterval(game);
+game=setInterval(draw,speed);
 }
 
 function setDir(d){
-    dir=d;
+if(d==="UP" && dir!=="DOWN") dir="UP";
+if(d==="DOWN" && dir!=="UP") dir="DOWN";
+if(d==="LEFT" && dir!=="RIGHT") dir="LEFT";
+if(d==="RIGHT" && dir!=="LEFT") dir="RIGHT";
 }
 
 document.addEventListener("keydown",e=>{
-    if(e.key==="ArrowUp")dir="UP";
-    if(e.key==="ArrowDown")dir="DOWN";
-    if(e.key==="ArrowLeft")dir="LEFT";
-    if(e.key==="ArrowRight")dir="RIGHT";
+if(e.key==="ArrowUp") setDir("UP");
+if(e.key==="ArrowDown") setDir("DOWN");
+if(e.key==="ArrowLeft") setDir("LEFT");
+if(e.key==="ArrowRight") setDir("RIGHT");
 });
 
 function draw(){
-    ctx.clearRect(0,0,400,400);
 
-    // FOOD
-    ctx.fillStyle="red";
-    ctx.shadowColor="red";
-    ctx.shadowBlur=15;
-    ctx.beginPath();
-    ctx.arc(food.x+10,food.y+10,8,0,Math.PI*2);
-    ctx.fill();
-    ctx.shadowBlur=0;
+ctx.clearRect(0,0,420,420);
 
-    let headX=snake[0].x;
-    let headY=snake[0].y;
+ctx.fillStyle="red";
+ctx.fillRect(food.x,food.y,box,box);
 
-    if(dir==="UP") headY-=box;
-    if(dir==="DOWN") headY+=box;
-    if(dir==="LEFT") headX-=box;
-    if(dir==="RIGHT") headX+=box;
+ctx.fillStyle="purple";
+obstacles.forEach(o=>ctx.fillRect(o.x,o.y,box,box));
 
-    // WALL PASS
-    if(headX<0) headX=380;
-    if(headX>=400) headX=0;
-    if(headY<0) headY=380;
-    if(headY>=400) headY=0;
+let headX=snake[0].x;
+let headY=snake[0].y;
 
-    // BODY COLLISION
-    for(let i=0;i<snake.length;i++){
-        if(headX===snake[i].x && headY===snake[i].y){
-            clearInterval(game);
-            alert("Game Over 👑 Score: "+score);
-        }
-    }
+if(dir==="UP") headY-=box;
+if(dir==="DOWN") headY+=box;
+if(dir==="LEFT") headX-=box;
+if(dir==="RIGHT") headX+=box;
 
-    let newHead={x:headX,y:headY};
+if(headX<0) headX=399;
+if(headX>=420) headX=0;
+if(headY<0) headY=399;
+if(headY>=420) headY=0;
 
-    if(headX===food.x && headY===food.y){
-        score++;
-        document.getElementById("score").innerText=score;
-        food=randomFood();
-    }else{
-        snake.pop();
-    }
-
-    snake.unshift(newHead);
-
-    // DRAW SNAKE
-    for(let i=snake.length-1;i>=0;i--){
-        if(i===0){
-            // HEAD
-            ctx.fillStyle="#00ff66";
-            ctx.shadowColor="#00ff66";
-            ctx.shadowBlur=15;
-            ctx.beginPath();
-            ctx.ellipse(snake[i].x+10,snake[i].y+10,12,10,0,0,Math.PI*2);
-            ctx.fill();
-            ctx.shadowBlur=0;
-
-            // EYES
-            ctx.fillStyle="white";
-            ctx.beginPath();
-            ctx.arc(snake[i].x+6,snake[i].y+7,2,0,Math.PI*2);
-            ctx.arc(snake[i].x+14,snake[i].y+7,2,0,Math.PI*2);
-            ctx.fill();
-
-            ctx.fillStyle="black";
-            ctx.beginPath();
-            ctx.arc(snake[i].x+6,snake[i].y+7,1,0,Math.PI*2);
-            ctx.arc(snake[i].x+14,snake[i].y+7,1,0,Math.PI*2);
-            ctx.fill();
-
-            // TONGUE
-            ctx.strokeStyle="red";
-            ctx.lineWidth=2;
-            ctx.beginPath();
-            ctx.moveTo(snake[i].x+10,snake[i].y+18);
-            ctx.lineTo(snake[i].x+10,snake[i].y+24);
-            ctx.stroke();
-        }else{
-            ctx.fillStyle="#00994d";
-            ctx.beginPath();
-            ctx.ellipse(snake[i].x+10,snake[i].y+10,10,8,0,0,Math.PI*2);
-            ctx.fill();
-        }
-    }
+for(let i=0;i<snake.length;i++){
+if(headX===snake[i].x && headY===snake[i].y) return endGame();
 }
+
+for(let o of obstacles){
+if(headX===o.x && headY===o.y) return endGame();
+}
+
+let newHead={x:headX,y:headY};
+
+if(headX===food.x && headY===food.y){
+score++;
+document.getElementById("score").innerText=score;
+
+if(score%5===0){
+level++;
+speed=Math.max(60,speed-10);
+clearInterval(game);
+game=setInterval(draw,speed);
+document.getElementById("level").innerText=level;
+obstacles.push(randomPos());
+}
+
+food=randomPos();
+}else{
+snake.pop();
+}
+
+snake.unshift(newHead);
+
+ctx.fillStyle="#00ff99";
+snake.forEach(s=>ctx.fillRect(s.x,s.y,box,box));
+}
+
+function endGame(){
+clearInterval(game);
+document.getElementById("gameOver").style.display="flex";
+document.getElementById("final").innerText=score;
+
+if(score>high){
+high=score;
+localStorage.setItem("bhenzHigh",high);
+document.getElementById("high").innerText=high;
+}
+}
+
+startGame();
 </script>
 
 </body>
